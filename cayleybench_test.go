@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"runtime"
+	"sync"
 	"testing"
 
 	"github.com/google/cayley"
@@ -15,9 +16,9 @@ import (
 )
 
 var (
-	cm, cb *QuadWriter
-	murl   = flag.String("mongo", "localhost:27017", "MongoDB url to connect to")
-	pgurl  = flag.String("pg", "postgres://postgres:test@192.168.99.100/postgres?sslmode=disable", "PostGres url to connect to")
+	murl  = flag.String("mongo", "localhost:27017", "MongoDB url to connect to")
+	pgurl = flag.String("pg", "postgres://postgres:test@192.168.99.100/postgres?sslmode=disable", "PostGres url to connect to")
+	once  sync.Once
 )
 
 func TestMain(m *testing.M) {
@@ -31,21 +32,21 @@ func BenchmarkMemInsert(b *testing.B) {
 	var (
 		err  error
 		memg *cayley.Handle
+		memw *QuadWriter
 	)
-	defer runtime.GC()
 
 	if memg, err = cayley.NewMemoryGraph(); err != nil {
 		b.Fatal("mem: Can not create MemoryGraph", err)
 	}
 	defer memg.Close()
 
-	mw := NewQuadWriter(memg)
-	mw.InitQuads(b.N)
+	memw = NewQuadWriter(memg)
+	memw.InitQuads(b.N)
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		mw.WriteQuad()
+		memw.WriteQuad()
 	}
 }
 
@@ -54,13 +55,15 @@ func BenchmarkPostgresInsert(b *testing.B) {
 	var (
 		err error
 		pg  *cayley.Handle
+		pw  *QuadWriter
 	)
 
-	defer runtime.GC()
-
-	if err = graph.InitQuadStore("sql", *pgurl, nil); err != nil {
-		b.Fatal("pgsql: Can not init QuadStore", err)
-	}
+	once.Do(
+		func() {
+			if err = graph.InitQuadStore("sql", *pgurl, nil); err != nil {
+				b.Fatal("pgsql: Can not init QuadStore", err)
+			}
+		})
 
 	if pg, err = cayley.NewGraph("sql", *pgurl, nil); err != nil {
 		b.Fatal("pgsql: Can not create QuadStore", err)
@@ -68,7 +71,7 @@ func BenchmarkPostgresInsert(b *testing.B) {
 
 	defer pg.Close()
 
-	pw := NewQuadWriter(pg)
+	pw = NewQuadWriter(pg)
 	pw.InitQuads(b.N)
 
 	b.ResetTimer()
@@ -87,8 +90,8 @@ func BenchmarkMongoInsert(b *testing.B) {
 	var (
 		err error
 		mg  *cayley.Handle
+		mw  *QuadWriter
 	)
-	defer runtime.GC()
 
 	if err = graph.InitQuadStore("mongo", *murl, nil); err != nil {
 		b.Fatal("mongo: Can not init QuadStore", err)
@@ -100,15 +103,15 @@ func BenchmarkMongoInsert(b *testing.B) {
 	}
 	defer mg.Close()
 
-	cm := NewQuadWriter(mg)
-	cm.InitQuads(b.N)
+	mw = NewQuadWriter(mg)
+	mw.InitQuads(b.N)
 
 	b.ResetTimer()
 
 	b.RunParallel(
 		func(pb *testing.PB) {
 			for pb.Next() {
-				cm.WriteQuad()
+				mw.WriteQuad()
 			}
 		})
 
@@ -119,9 +122,8 @@ func BenchmarkBoltInserts(b *testing.B) {
 	var (
 		err error
 		bg  *cayley.Handle
+		bw  *QuadWriter
 	)
-
-	defer runtime.GC()
 
 	f, err := ioutil.TempFile("", "cayleybench-bolt")
 	if err != nil {
@@ -142,14 +144,14 @@ func BenchmarkBoltInserts(b *testing.B) {
 	}
 	defer bg.Close()
 
-	cb = NewQuadWriter(bg)
+	bw = NewQuadWriter(bg)
 
-	cb.InitQuads(b.N)
+	bw.InitQuads(b.N)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			cb.WriteQuad()
+			bw.WriteQuad()
 		}
 	})
 }
