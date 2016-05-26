@@ -8,6 +8,7 @@ import (
 	"github.com/pborman/uuid"
 )
 
+// QuadWriter is a helper struct for the benchmarks
 type QuadWriter struct {
 	sync.Mutex
 	cayley  *cayley.Handle
@@ -15,6 +16,8 @@ type QuadWriter struct {
 	counter int
 }
 
+// WriteQuad is called in the Benchmark* functions to
+// perform the actual write operation
 func (w *QuadWriter) WriteQuad() {
 	var c int
 	w.Lock()
@@ -25,6 +28,7 @@ func (w *QuadWriter) WriteQuad() {
 	w.cayley.AddQuad(w.quads[c])
 }
 
+// InitQuads is used to pregenerate Quads
 func (w *QuadWriter) InitQuads(nums int) {
 
 	w.Lock()
@@ -36,6 +40,9 @@ func (w *QuadWriter) InitQuads(nums int) {
 	}
 	w.Unlock()
 }
+
+// NewQuadWriter creates a new Quadwriter.
+// Each time WriteQuad is called, a Quad is written to the underlying handle
 func NewQuadWriter(handle *cayley.Handle) *QuadWriter {
 	return &QuadWriter{cayley: handle}
 }
