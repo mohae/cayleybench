@@ -8,16 +8,36 @@ which option would be prefereable as a backend, BoltDB or MongoDB.
     go get github.com/mwmahlberg/cayleybench
 
 ## Run
-    $ cd $GOPATH/src/github.com/mwmahlberg/cayleybench
-    $ go test -run=XXX -bench=. -benchmem -cpu 2,4,6,8
+
+    $ go test -run=XXX -bench=.*Mem -benchmem -cpu 2,4,6,8
     testing: warning: no tests to run
     PASS
-    BenchmarkMongoInsert-2	    1000	   1370244 ns/op	   32592 B/op	     523 allocs/op
-    BenchmarkMongoInsert-4	    1000	   1286237 ns/op	   32606 B/op	     523 allocs/op
-    BenchmarkMongoInsert-6	    1000	   1395686 ns/op	   32628 B/op	     524 allocs/op
-    BenchmarkMongoInsert-8	    1000	   1440273 ns/op	   32603 B/op	     523 allocs/op
-    BenchmarkBoltInserts-2	    1000	   2119516 ns/op	  121353 B/op	     267 allocs/op
-    BenchmarkBoltInserts-4	     500	   2533091 ns/op	  145026 B/op	     290 allocs/op
-    BenchmarkBoltInserts-6	     500	   2724483 ns/op	  155769 B/op	     305 allocs/op
-    BenchmarkBoltInserts-8	     500	   2873391 ns/op	  159696 B/op	     314 allocs/op
-    ok  	github.com/mwmahlberg/cayleybench	14.942s
+    BenchmarkMemInsert-2	  100000	     20491 ns/op	    3590 B/op	       5 allocs/op
+    BenchmarkMemInsert-4	  100000	     16146 ns/op	    3591 B/op	       5 allocs/op
+    BenchmarkMemInsert-6	  100000	     18554 ns/op	    3590 B/op	       5 allocs/op
+    BenchmarkMemInsert-8	  100000	     22909 ns/op	    3591 B/op	       5 allocs/op
+    ok  	github.com/mwmahlberg/cayleybench	11.632s
+    $ go test -run=XXX -bench=.*Mongo -benchmem -cpu 2,4,6,8
+    testing: warning: no tests to run
+    PASS
+    BenchmarkMongoInsert-2	    1000	   1487063 ns/op	   32591 B/op	     523 allocs/op
+    BenchmarkMongoInsert-4	    1000	   1368688 ns/op	   32603 B/op	     523 allocs/op
+    BenchmarkMongoInsert-6	    1000	   1467024 ns/op	   32630 B/op	     524 allocs/op
+    BenchmarkMongoInsert-8	    1000	   1467883 ns/op	   32608 B/op	     523 allocs/op
+    ok  	github.com/mwmahlberg/cayleybench	46.511s
+    $ go test -run=XXX -bench=.*Bolt -benchmem -cpu 2,4,6,8
+    testing: warning: no tests to run
+    PASS
+    BenchmarkBoltInserts-2	    1000	   2054540 ns/op	  117495 B/op	     265 allocs/op
+    BenchmarkBoltInserts-4	    1000	   2052377 ns/op	  117890 B/op	     265 allocs/op
+    BenchmarkBoltInserts-6	    1000	   2140950 ns/op	  117535 B/op	     265 allocs/op
+    BenchmarkBoltInserts-8	    1000	   2098326 ns/op	  117848 B/op	     265 allocs/op
+    ok  	github.com/mwmahlberg/cayleybench	10.265s
+    $ go test -run=XXX -bench=.*Post -benchmem -cpu 2,4,6,8
+    testing: warning: no tests to run
+    PASS
+    BenchmarkPostgresInsert-2	    1000	   2027693 ns/op	   69503 B/op	      84 allocs/op
+    BenchmarkPostgresInsert-4	    1000	   1926262 ns/op	   69542 B/op	      84 allocs/op
+    BenchmarkPostgresInsert-6	     500	   2002072 ns/op	   69687 B/op	      86 allocs/op
+    BenchmarkPostgresInsert-8	     500	   2199349 ns/op	   69797 B/op	      87 allocs/op
+    ok  	github.com/mwmahlberg/cayleybench	9.109s
