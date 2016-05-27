@@ -7,9 +7,45 @@ which option would be prefereable as a backend, BoltDB or MongoDB.
 
     go get github.com/mwmahlberg/cayleybench
 
-There will be a docker image, too.    
+## Run as docker-compose
 
-## Run
+    $ curl -o docker-compose.yml https://raw.githubusercontent.com/mwmahlberg/cayleybench/master/docker-compose.yml
+    $ docker-compose up --abort-on-container-exit
+    Creating network "cayleybench_default" with the default driver
+    Creating cayleybench_postgres_1
+    Creating cayleybench_mongodb_1
+    Creating benchrunner
+    Attaching to cayleybench_postgres_1, cayleybench_mongodb_1, benchrunner
+    postgres_1   | WARNING: no logs are available with the 'none' log driver
+    mongodb_1    | WARNING: no logs are available with the 'none' log driver
+    benchrunner  | testing: warning: no tests to run
+    benchrunner  | PASS
+    benchrunner  | BenchmarkMemInsert       	   20000	     50126 ns/op	    3672 B/op	       5 allocs/op
+    benchrunner  | BenchmarkMemInsert-2     	   30000	     46544 ns/op	    3871 B/op	       5 allocs/op
+    benchrunner  | BenchmarkMemInsert-4     	   50000	     30957 ns/op	    3596 B/op	       5 allocs/op
+    benchrunner  | BenchmarkMemInsert-6     	  100000	     46518 ns/op	    3591 B/op	       5 allocs/op
+    benchrunner  | BenchmarkMemInsert-8     	   50000	     23543 ns/op	    3597 B/op	       5 allocs/op
+    benchrunner  | BenchmarkPostgresInsert  	    1000	   1196971 ns/op	   69422 B/op	      84 allocs/op
+    benchrunner  | BenchmarkPostgresInsert-2	    1000	   1261531 ns/op	   69486 B/op	      84 allocs/op
+    benchrunner  | BenchmarkPostgresInsert-4	    1000	   1393058 ns/op	   69523 B/op	      85 allocs/op
+    benchrunner  | BenchmarkPostgresInsert-6	    1000	   1830245 ns/op	   69614 B/op	      85 allocs/op
+    benchrunner  | BenchmarkPostgresInsert-8	     300	   3543214 ns/op	   70149 B/op	      90 allocs/op
+    benchrunner  | BenchmarkMongoInsert     	    1000	   1684434 ns/op	   34364 B/op	     554 allocs/op
+    benchrunner  | BenchmarkMongoInsert-2   	    1000	   1711045 ns/op	   34383 B/op	     554 allocs/op
+    benchrunner  | BenchmarkMongoInsert-4   	    1000	   1735010 ns/op	   34409 B/op	     554 allocs/op
+    benchrunner  | BenchmarkMongoInsert-6   	    1000	   1779852 ns/op	   34414 B/op	     554 allocs/op
+    benchrunner  | BenchmarkMongoInsert-8   	    1000	   1835134 ns/op	   34438 B/op	     555 allocs/op
+    benchrunner  | BenchmarkBoltInserts     	    1000	   2339768 ns/op	   62924 B/op	     267 allocs/op
+    benchrunner  | BenchmarkBoltInserts-2   	    1000	   2131284 ns/op	   63401 B/op	     267 allocs/op
+    benchrunner  | BenchmarkBoltInserts-4   	    1000	   2163644 ns/op	   63072 B/op	     267 allocs/op
+    benchrunner  | BenchmarkBoltInserts-6   	    1000	   2205209 ns/op	   63450 B/op	     267 allocs/op
+    benchrunner  | BenchmarkBoltInserts-8   	    1000	   2131469 ns/op	   62792 B/op	     267 allocs/op
+    benchrunner exited with code 0
+    Aborting on container exit...
+    Stopping cayleybench_mongodb_1 ... done
+    Stopping cayleybench_postgres_1 ... done
+
+## Run manually
 
 ### In-Memory Graph
 
