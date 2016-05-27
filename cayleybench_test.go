@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/cayley"
 	"github.com/google/cayley/graph"
@@ -16,14 +17,17 @@ import (
 )
 
 var (
-	murl  = flag.String("mongo", "localhost:27017", "MongoDB url to connect to")
-	pgurl = flag.String("pg", "postgres://postgres:test@192.168.99.100/postgres?sslmode=disable", "PostGres url to connect to")
+	murl  = flag.String("mongo", "mongodb:27017", "MongoDB url to connect to")
+	pgurl = flag.String("pg", "postgres://postgres@postgres/postgres?sslmode=disable&connect_timeout=0", "PostGres url to connect to")
+	sleep = flag.Int64("sleep", 0, "waits this number of seconds before executing the tests")
 	once  sync.Once
 )
 
 func TestMain(m *testing.M) {
 	flag.Parse()
-
+	if *sleep > 0 {
+		time.Sleep(time.Duration(*sleep) * time.Second)
+	}
 	m.Run()
 }
 
