@@ -16,6 +16,7 @@
 # along with cayleybench.  If not, see <http://www.gnu.org/licenses/>.
 
 FROM alpine
+MAINTAINER Markus W Mahlberg <markus.mahlberg@me.com>
 ADD cayleybench.test /bin/cayleybench.test
 ENTRYPOINT ["/bin/cayleybench.test", "-test.run=XXX" ,"-test.bench=.", "-test.benchmem","-sleep=5"]
 CMD ["-test.cpu","1,2,4,6,8"]
