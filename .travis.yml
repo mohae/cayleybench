@@ -1,3 +1,26 @@
+# Copyright 2016 Markus W Mahlberg <markus.mahlberg@me.com>
+#
+# This file is part of cayleybench.
+#
+# cayleybench is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# cayleybench is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with cayleybench.  If not, see <http://www.gnu.org/licenses/>.
+
+branches:
+  only:
+    - master
+    - develop
+    - /^v[0-9]\..*$/
+
 language: go
 
 sudo: required
@@ -16,7 +39,7 @@ install:
   - go get gopkg.in/mgo.v2
   - go get "github.com/lib/pq"
 
-script: go test -c
+script: CGO_ENABLED=0 go test -c -ldflags '-extldflags "-static"'
 
 after_script:
   - docker build -t mwmahlberg/cayleybench${TRAVIS_TAG:+:$TRAVIS_TAG} .
