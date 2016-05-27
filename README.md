@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/mwmahlberg/cayleybench.svg?branch=master)](https://travis-ci.org/mwmahlberg/cayleybench)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mwmahlberg/cayleybench.svg)][hub]
+[![](https://imagelayers.io/badge/mwmahlberg/cayleybench:latest.svg)](https://imagelayers.io/?images=mwmahlberg/cayleybench:latest 'Get your own badge on imagelayers.io')
+
 # cayleybench
 
 I wrote cayleybench because the question arose on Cayley's slack channel
