@@ -7,6 +7,8 @@ which option would be prefereable as a backend, BoltDB or MongoDB.
 
     go get github.com/mwmahlberg/cayleybench
 
+There will be a docker image, too.    
+
 ## Run
 
 ### In-Memory Graph
