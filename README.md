@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/mwmahlberg/cayleybench.svg?branch=master)](https://travis-ci.org/mwmahlberg/cayleybench)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mwmahlberg/cayleybench.svg)](https://hub.docker.com/r/mwmahlberg/cayleybench/)
-[![](https://imagelayers.io/badge/mwmahlberg/cayleybench:latest.svg)](https://imagelayers.io/?images=mwmahlberg/cayleybench:latest 'Get your own badge on imagelayers.io')
+
+[![Build Status](https://img.shields.io/travis/mwmahlberg/cayleybench/master.svg?style=flat-square)](https://travis-ci.org/mwmahlberg/cayleybench)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mwmahlberg/cayleybench.svg?style=flat-square)](https://hub.docker.com/r/mwmahlberg/cayleybench/)
+[![Image Layers](https://imagelayers.io/badge/mwmahlberg/cayleybench:latest.svg)](https://imagelayers.io/?images=mwmahlberg/cayleybench:latest 'Get your own badge on imagelayers.io')
 
 # cayleybench
 
