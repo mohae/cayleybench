@@ -1,0 +1,25 @@
+language: go
+
+sudo: required
+
+services:
+  - docker
+
+go:
+  - 1.6
+
+install:
+  - go get "github.com/google/cayley"
+  - go get "github.com/pborman/uuid"
+  - go get "github.com/boltdb/bolt"
+  - go get "github.com/gogo/protobuf/proto"
+  - go get gopkg.in/mgo.v2
+  - go get "github.com/lib/pq"
+
+script: go test -c
+
+after_script:
+  - docker build -t mwmahlberg/cayleybench .
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push mwmahlberg/cayleybench
+  - docker logout
