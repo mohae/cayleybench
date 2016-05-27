@@ -2,7 +2,7 @@ version: '2'
 services:
   benchmark:
     container_name: benchrunner
-    build: .
+    image: mwmahlberg/cayleybench
     depends_on:
       - "postgres"
       - "mongodb"
