@@ -1,0 +1,20 @@
+version: '2'
+services:
+  benchmark:
+    container_name: benchrunner
+    build: .
+    depends_on:
+      - "postgres"
+      - "mongodb"
+  postgres:
+    image: postgres
+    logging:
+      driver: none
+    ports:
+      - "5432:5432"
+  mongodb:
+    image: mongo:3.2
+    logging:
+      driver: none
+    ports:
+      - "27017:27017"
