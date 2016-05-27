@@ -39,7 +39,7 @@ install:
   - go get gopkg.in/mgo.v2
   - go get "github.com/lib/pq"
 
-script: go test -c
+script: CGO_ENABLED=0 go test -c -ldflags '-extldflags "-static"'
 
 after_script:
   - docker build -t mwmahlberg/cayleybench${TRAVIS_TAG:+:$TRAVIS_TAG} .
