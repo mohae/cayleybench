@@ -18,5 +18,5 @@
 FROM alpine
 MAINTAINER Markus W Mahlberg <markus.mahlberg@me.com>
 ADD cayleybench.test /bin/cayleybench.test
-ENTRYPOINT ["/bin/cayleybench.test", "-test.run=XXX" ,"-test.bench=.", "-test.benchmem","-sleep=5"]
-CMD ["-test.cpu","1,2,4,6,8"]
+ENTRYPOINT ["/bin/cayleybench.test", "-test.run=XXX" , "-test.benchmem"]
+CMD ["-sleep=5","-test.cpu","1,2,4,6,8","-test.bench","."]
