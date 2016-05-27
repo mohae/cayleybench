@@ -1,5 +1,6 @@
 
 [![Build Status](https://img.shields.io/travis/mwmahlberg/cayleybench/master.svg?style=flat-square)](https://travis-ci.org/mwmahlberg/cayleybench)
+[![LGPLv3](https://img.shields.io/badge/License-LGPLv3-337128.svg?style=flat-square)](http://www.gnu.org/licenses/lgpl-3.0-standalone.html)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mwmahlberg/cayleybench.svg?style=flat-square)](https://hub.docker.com/r/mwmahlberg/cayleybench/)
 [![Image Layers](https://imagelayers.io/badge/mwmahlberg/cayleybench:latest.svg)](https://imagelayers.io/?images=mwmahlberg/cayleybench:latest 'Get your own badge on imagelayers.io')
 
