@@ -19,9 +19,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -39,21 +43,18 @@ import (
 var (
 	output         string
 	format         string
-murl string
-purl string
-	cpus   string
+	murl           string
+	pgurl          string
+	cpus           string
 	section        bool
 	sectionHeaders bool
 	nameSections   bool
 	systemInfo     bool
-	datasetSize    int // number of elements in test slice
+	sleep          int64
+	once           sync.Once
 )
 
 func init() {
-	flag.StringVar(&output, "output", "stdout", "output destination")
-	flag.StringVar(&output, "o", "stdout", "output destination (short)")
-	flag.StringVar(&format, "format", "txt", "format of output")
-	flag.StringVar(&format, "f", "txt", "format of output")
 	flag.BoolVar(&nameSections, "namesections", false, "use group as section name: some restrictions apply")
 	flag.BoolVar(&nameSections, "n", false, "use group as section name: some restrictions apply")
 	flag.BoolVar(&section, "sections", false, "don't separate groups of tests into sections")
@@ -62,21 +63,25 @@ func init() {
 	flag.BoolVar(&sectionHeaders, "h", false, "if there are sections, add a section header row")
 	flag.BoolVar(&systemInfo, "sysinfo", false, "add the system information to the output")
 	flag.BoolVar(&systemInfo, "i", false, "add the system information to the output")
-	flag.String(&murl, "mongo", "mongodb:27017", "MongoDB url to connect to")
-	flag.String(&murl, "m", "mongodb:27017", "MongoDB url to connect to")
-	flag.String(&purl, "pg", "postgres://postgres@postgres/postgres?sslmode=disable&connect_timeout=0", "PostGres url to connect to")
-	flag.String(&purl, "p", "postgres://postgres@postgres/postgres?sslmode=disable&connect_timeout=0", "PostGres url to connect to")
-	flag.Int64(&sleep, "sleep", 0, "waits this number of seconds before executing the tests")
-flag.Int64(&sleep, "z", 0, "waits this number of seconds before executing the tests")
-	flag.Var(&cpus, "cpus", "comma-separated list of number of CPUs to use for each test")
-	flag.Var(&cpus, "c", "comma-separated list of number of CPUs to use for each test")
-	once  sync.Once
+	flag.StringVar(&pgurl, "p", "postgres://postgres@postgres/postgres?sslmode=disable&connect_timeout=0", "PostGres url to connect to")
+	flag.Int64Var(&sleep, "sleep", 0, "waits this number of seconds before executing the tests")
+	flag.Int64Var(&sleep, "z", 0, "waits this number of seconds before executing the tests")
+	flag.StringVar(&cpus, "cpus", "", "comma-separated list of number of CPUs to use for each test")
+	flag.StringVar(&cpus, "c", "", "comma-separated list of number of CPUs to use for each test")
+	flag.StringVar(&format, "format", "txt", "format of output")
+	flag.StringVar(&format, "f", "txt", "format of output")
+	flag.StringVar(&murl, "mongo", "mongodb:27017", "MongoDB url to connect to")
+	flag.StringVar(&murl, "m", "mongodb:27017", "MongoDB url to connect to")
+	flag.StringVar(&output, "o", "stdout", "output destination (short)")
+	flag.StringVar(&pgurl, "pg", "postgres://postgres@postgres/postgres?sslmode=disable&connect_timeout=0", "PostGres url to connect to")
+	flag.StringVar(&pgurl, "p", "postgres://postgres@postgres/postgres?sslmode=disable&connect_timeout=0", "PostGres url to connect to")
+	flag.StringVar(&output, "output", "stdout", "output destination")
 }
 
 func main() {
 	flag.Parse()
-	if *sleep > 0 {
-		time.Sleep(time.Duration(*sleep) * time.Second)
+	if sleep > 0 {
+		time.Sleep(time.Duration(sleep) * time.Second)
 	}
 	CPUs := parseCPUs()
 
@@ -88,9 +93,10 @@ func main() {
 	done := make(chan struct{})
 	// start the visual ticker
 	go benchutil.Dot(done)
-	shared.Len = datasetSize
 	// set the output
 	var w io.Writer
+	var err error
+
 	switch output {
 	case "stdout":
 		w = os.Stdout
@@ -123,29 +129,29 @@ func main() {
 	bench.SetGroupColumnHeader("CPUs")
 	bench.SetNameColumnHeader("Database")
 
-	benchAll(bench)
+	benchAll(bench, CPUs)
 }
 
-func benchAll(bench benchutil.Benchmarker) {
+func benchAll(bench benchutil.Benchmarker, CPUs []int) {
 
 	for _, cpu := range CPUs {
 		cpu = runtime.GOMAXPROCS(cpu)
-	b := benchutil.NewBench("bolt insert")
-	b.Group = strconv.Itoa(cpu)
-	b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchBoltInsert))
-	bench.Append(b)
+		b := benchutil.NewBench("bolt insert")
+		b.Group = strconv.Itoa(cpu)
+		b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchBoltInsert))
+		bench.Append(b)
 
-	b = benchutil.NewBench("mem insert")
-	b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchMemInsert))
-	bench.Append(b)
+		b = benchutil.NewBench("mem insert")
+		b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchMemInsert))
+		bench.Append(b)
 
-	b = benchutil.NewBench("mongo insert")
-	b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchMongoInsert))
-	bench.Append(b)
+		b = benchutil.NewBench("mongo insert")
+		b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchMongoInsert))
+		bench.Append(b)
 
-	b = benchutil.NewBench("postgress insert")
-	b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchPostgresInsert))
-	bench.Append(b)
+		b = benchutil.NewBench("postgress insert")
+		b.Result = benchutil.ResultFromBenchmarkResult(testing.Benchmark(BenchPostgresInsert))
+		bench.Append(b)
 	}
 }
 
@@ -181,12 +187,12 @@ func BenchPostgresInsert(b *testing.B) {
 
 	once.Do(
 		func() {
-			if err = graph.InitQuadStore("sql", *pgurl, nil); err != nil {
+			if err = graph.InitQuadStore("sql", pgurl, nil); err != nil {
 				b.Fatal("pgsql: Can not init QuadStore", err)
 			}
 		})
 
-	if pg, err = cayley.NewGraph("sql", *pgurl, nil); err != nil {
+	if pg, err = cayley.NewGraph("sql", pgurl, nil); err != nil {
 		b.Fatal("pgsql: Can not create QuadStore", err)
 	}
 
@@ -214,11 +220,11 @@ func BenchMongoInsert(b *testing.B) {
 		mw  *cb.QuadWriter
 	)
 
-	if err = graph.InitQuadStore("mongo", *murl, nil); err != nil {
+	if err = graph.InitQuadStore("mongo", murl, nil); err != nil {
 		b.Fatal("mongo: Can not init QuadStore", err)
 	}
 
-	mg, err = cayley.NewGraph("mongo", *murl, nil)
+	mg, err = cayley.NewGraph("mongo", murl, nil)
 	if err != nil {
 		b.Fatal("mongo: Can not create QuadStore", err)
 	}
@@ -279,9 +285,9 @@ func BenchBoltInsert(b *testing.B) {
 
 func parseCPUs() []int {
 	var CPUs []int
-	vals := strings.Split(*cpus, ",")
-   for _, val := range vals {
-   		val = strings.TrimSpace(val)
+	vals := strings.Split(cpus, ",")
+	for _, val := range vals {
+		val = strings.TrimSpace(val)
 		if val == "" {
 			continue
 		}
@@ -291,6 +297,6 @@ func parseCPUs() []int {
 			os.Exit(1)
 		}
 		CPUs = append(CPUs, cpu)
-   	}
+	}
 	return CPUs
 }
